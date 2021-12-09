@@ -12,8 +12,7 @@ register-scheduledtask -taskname 'terraform_os_patching' `
 # Scheduled task to run windows update weekly
    
 
-$action = New-ScheduledTaskAction -Execute 'Powershell.exe' `
-    -Argument '-NoProfile -WindowStyle Hidden -command "& { Install-Module PSWindowsUpdate -Force; Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot }"'
+$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& { Install-Module PSWindowsUpdate -Force; Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot }"'
 
 $trigger =  New-ScheduledTaskTrigger -At 12am -Weekly -DaysOfWeek Sunday 
 
@@ -21,6 +20,37 @@ Register-ScheduledTask -User 'nt authority\system' -Action $action -Trigger $tri
 
 
 Get-ScheduledTask -TaskName "AppLog" 
+
+
+# Single Liner
+
+
+Register-ScheduledTask -User 'nt authority\system' -Action (New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& { Install-Module PSWindowsUpdate -Force; Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot }"') -Trigger (New-ScheduledTaskTrigger -At 12am -Weekly -DaysOfWeek Sunday) -TaskPath Terraform -TaskName "AppLog" -Description "Daily dump of Applog" -Force -RunLevel Highest
+
+
+
+
+
+  
+# Scheduled task to run windows update daily - SETUP MODE
+
+$action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument 'C:\Users\adminuser\Documents\pwsh_scheduled_tasks\windows_patching.ps1 -setup'
+
+$trigger =  New-ScheduledTaskTrigger -At 5am -Weekly -DaysOfWeek Sunday 
+
+Register-ScheduledTask -User 'nt authority\system' -Action $action -Trigger $trigger -TaskPath Terraform -TaskName "AppLogDail" -Description "Daily dump of Applog" -Force -RunLevel Highest
+
+
+
+$action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument 'C:\Users\adminuser\Documents\pwsh_scheduled_tasks\windows_patching.ps1 -time 5am -environment dev'
+
+$trigger =  New-ScheduledTaskTrigger -At 5am -Weekly -DaysOfWeek Sunday 
+
+Register-ScheduledTask -User 'nt authority\system' -Action $action -Trigger $trigger -TaskPath Terraform -TaskName "AppLogDail" -Description "Daily dump of Applog" -Force -RunLevel Highest
+
+
+
+
 
 
 
